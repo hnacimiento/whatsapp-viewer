@@ -1,0 +1,3325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Chat Viewer v1.0.0</title>
+    <style>
+        /* =========================================================
+           RESET Y BASE (con fuentes emoji nativas)
+           ========================================================= */
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", sans-serif;
+            background: #d9dbd5;
+            color: #111;
+            transition: background .3s, color .3s;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        body.dark {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        body.dark #welcome {
+            background: #1a1a1a;
+        }
+
+        body.dark .welcome-box {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        body.dark .welcome-box p {
+            color: #aaa;
+        }
+
+        body.dark .header {
+            background: #1a3a3a;
+        }
+
+        body.dark .chat-area {
+            background: #1a1a1a;
+        }
+
+        body.dark .chat-area::before {
+            opacity: .02;
+        }
+
+        body.dark .incoming .message {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        body.dark .outgoing .message {
+            background: #1a4a4a;
+            color: #e0e0e0;
+        }
+
+        body.dark .date-label {
+            background: #2d2d2d;
+            color: #aaa;
+        }
+
+        body.dark .system-message span {
+            background: #3d3d2d;
+            color: #d0c080;
+            border-color: #5c5a3a;
+        }
+
+        body.dark .search-panel {
+            background: #2d2d2d;
+        }
+
+        body.dark #searchInput {
+            background: #3d3d3d;
+            color: #e0e0e0;
+        }
+
+        body.dark #searchInput::placeholder {
+            color: #888;
+        }
+
+        body.dark .search-nav button {
+            background: #3d3d3d;
+            color: #e0e0e0;
+        }
+
+        body.dark .search-nav button:hover {
+            background: #4d4d4d;
+        }
+
+        body.dark .file-card {
+            background: rgba(255,255,255,.05);
+        }
+
+        body.dark .file-card:hover {
+            background: rgba(255,255,255,.1);
+        }
+
+        body.dark #infoPanel {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        body.dark .info-header {
+            background: #1a1a1a;
+        }
+
+        body.dark .stat {
+            border-bottom-color: #3d3d3d;
+        }
+
+        body.dark .stat-bar .bar {
+            background: #3d3d3d;
+        }
+
+        body.dark #scrollBottom {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        body.dark #scrollBottom:hover {
+            background: #3d3d3d;
+        }
+
+        body.dark #bookmarksPanel {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        body.dark .bookmark-item {
+            border-bottom-color: #3d3d3d;
+        }
+
+        body.dark .bookmark-item:hover {
+            background: rgba(255,255,255,.03);
+        }
+
+        body.dark #loading {
+            background: rgba(0,0,0,.85);
+        }
+
+        body.dark .loading-text {
+            color: #aaa;
+        }
+
+        body.dark .progress-bar {
+            background: #3d3d3d;
+        }
+
+        /* =========================================================
+           PANTALLA DE INICIO
+           ========================================================= */
+        #welcome {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background .3s;
+        }
+
+        .welcome-box {
+            width: min(600px, 92vw);
+            text-align: center;
+            background: white;
+            border-radius: 14px;
+            padding: 30px 24px;
+            box-shadow: 0 8px 35px rgba(0,0,0,.15);
+            transition: background .3s, color .3s;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .whatsapp-logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            background: #25d366;
+            color: white;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .welcome-box h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .welcome-box p {
+            color: #667781;
+            line-height: 1.5;
+            font-size: 14px;
+            margin: 6px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 6px 12px;
+            background: #f8faf9;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 12px 0 14px;
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #2d3b44;
+            border: 1px solid #e9edef;
+        }
+
+        .features-grid span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .features-grid .emoji {
+            font-size: 16px;
+        }
+
+        .features-grid strong {
+            color: #008069;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .big-button {
+            border: 0;
+            border-radius: 8px;
+            background: #008069;
+            color: white;
+            padding: 12px 22px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .big-button:hover {
+            background: #006f5b;
+        }
+
+        .big-button.secondary {
+            background: #25d366;
+        }
+
+        .big-button.secondary:hover {
+            background: #1da85c;
+        }
+
+        .big-button.outline {
+            background: transparent;
+            border: 2px solid #008069;
+            color: #008069;
+        }
+
+        .big-button.outline:hover {
+            background: #008069;
+            color: white;
+        }
+
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #8696a0;
+        }
+
+        #error {
+            display: none;
+            margin-top: 16px;
+            padding: 10px;
+            background: #ffe8e6;
+            color: #c0392b;
+            border-radius: 7px;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* =========================================================
+           DRAG & DROP OVERLAY
+           ========================================================= */
+        #dropOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 128, 105, 0.15);
+            border: 4px dashed #008069;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #008069;
+            backdrop-filter: blur(4px);
+        }
+
+        /* =========================================================
+           APP
+           ========================================================= */
+        #app {
+            display: none;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+        .header {
+            height: 62px;
+            min-height: 62px;
+            background: #008069;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.25);
+            z-index: 10;
+            transition: background .3s;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 43px;
+            height: 43px;
+            border-radius: 50%;
+            background: #dfe5e7;
+            color: #54656f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .header-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: .85;
+            margin-top: 3px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .header-actions .icon-button {
+            width: 36px;
+            height: 36px;
+            border: 0;
+            background: transparent;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background .15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .header-actions .icon-button:hover {
+            background: rgba(255,255,255,.12);
+        }
+
+        .header-actions .icon-button.active {
+            background: rgba(255,255,255,.2);
+        }
+
+        .header-select {
+            background: rgba(255,255,255,.15);
+            border: 0;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            max-width: 100px;
+        }
+
+        .header-select option {
+            color: #111;
+            background: white;
+        }
+
+        .header-select.dark {
+            background: rgba(0,0,0,.3);
+        }
+
+        /* =========================================================
+           SEARCH BAR
+           ========================================================= */
+        #searchPanel {
+            display: none;
+            background: #f0f2f5;
+            padding: 8px 12px;
+            border-bottom: 1px solid #d1d7db;
+            flex-shrink: 0;
+            transition: background .3s;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #searchInput {
+            flex: 1;
+            border: 0;
+            outline: none;
+            background: white;
+            border-radius: 8px;
+            padding: 10px 13px;
+            font-size: 14px;
+            min-width: 0;
+            transition: background .3s, color .3s;
+        }
+
+        .search-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .search-nav button {
+            border: 0;
+            background: white;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #54656f;
+            transition: background .15s;
+        }
+
+        .search-nav button:hover {
+            background: #e4e7ea;
+        }
+
+        .search-count {
+            display: flex;
+            align-items: center;
+            padding: 0 6px;
+            color: #667781;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* =========================================================
+           CHAT (renderizado completo, sin virtual scrolling)
+           ========================================================= */
+        .chat-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #efeae2;
+            transition: background .3s;
+        }
+
+        .chat-area::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .035;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 10px 10px, #000 1px, transparent 1px),
+                radial-gradient(circle at 30px 30px, #000 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        #messages {
+            position: relative;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 16px 5%;
+            scroll-behavior: smooth;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            margin: 2px 0;
+        }
+
+        .message-row.incoming {
+            justify-content: flex-start;
+        }
+
+        .message-row.outgoing {
+            justify-content: flex-end;
+        }
+
+        .message {
+            position: relative;
+            max-width: min(70%, 700px);
+            padding: 6px 8px 5px;
+            border-radius: 7px;
+            box-shadow: 0 1px 1px rgba(0,0,0,.12);
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            transition: background .3s, color .3s;
+        }
+
+        .incoming .message {
+            background: white;
+            border-top-left-radius: 2px;
+        }
+
+        .outgoing .message {
+            background: #d9fdd3;
+            border-top-right-radius: 2px;
+        }
+
+        .sender {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e5427a;
+            margin-bottom: 3px;
+        }
+
+        .outgoing .sender {
+            color: #008069;
+        }
+
+        .message-text {
+            white-space: pre-wrap;
+            line-height: 1.38;
+            font-size: 14px;
+            transition: font-size .2s;
+        }
+
+        .message-text.emoji-only {
+            font-size: 32px;
+            line-height: 1.5;
+            letter-spacing: 0.5px;
+        }
+
+        .message-meta {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 3px;
+            margin-top: 3px;
+            min-height: 14px;
+        }
+
+        .time {
+            font-size: 10px;
+            color: #667781;
+        }
+
+        .checks {
+            color: #53bdeb;
+            font-size: 12px;
+        }
+
+        .action-btn {
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 4px;
+            color: #ccc;
+            transition: color .2s;
+            line-height: 1;
+        }
+
+        .action-btn:hover {
+            color: #f5c542;
+        }
+
+        .action-btn.active {
+            color: #f5c542;
+        }
+
+        /* =========================================================
+           FECHAS
+           ========================================================= */
+        .date-separator {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0;
+            width: 100%;
+        }
+
+        .date-label {
+            background: #fff;
+            color: #54656f;
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+            box-shadow: 0 1px 1px rgba(0,0,0,.08);
+            transition: background .3s, color .3s;
+        }
+
+        /* =========================================================
+           ARCHIVOS
+           ========================================================= */
+        .attachment {
+            margin-top: 4px;
+        }
+
+        .media-image {
+            display: block;
+            max-width: 100%;
+            max-height: 450px;
+            border-radius: 5px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        .media-video {
+            display: block;
+            width: 100%;
+            max-height: 450px;
+            border-radius: 5px;
+            background: black;
+        }
+
+        .media-audio {
+            width: min(360px, 100%);
+            max-width: 100%;
+        }
+
+        .file-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,.04);
+            border-radius: 7px;
+            padding: 10px;
+            min-width: 230px;
+            text-decoration: none;
+            color: inherit;
+            transition: background .15s;
+        }
+
+        .file-card:hover {
+            background: rgba(0,0,0,.08);
+        }
+
+        .file-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 7px;
+            background: #667781;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .file-type {
+            color: #667781;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .pdf-preview {
+            margin-top: 6px;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #dfe5e7;
+        }
+
+        .pdf-preview iframe {
+            display: block;
+            width: 100%;
+            height: 300px;
+            border: 0;
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .pdf-actions button {
+            border: 0;
+            background: #008069;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background .2s;
+        }
+
+        .pdf-actions button:hover {
+            background: #006f5b;
+        }
+
+        /* =========================================================
+           MENSAJE DE SISTEMA
+           ========================================================= */
+        .system-message {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        .system-message span {
+            background: #fff3c4;
+            color: #5c5a3a;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 1px 1px rgba(0,0,0,.08);
+            border: 1px solid #f0e0a0;
+            transition: background .3s, color .3s, border-color .3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .system-message .sys-icon {
+            font-size: 14px;
+        }
+
+        /* =========================================================
+           SCROLL BUTTON
+           ========================================================= */
+        #scrollBottom {
+            position: absolute;
+            right: 22px;
+            bottom: 22px;
+            width: 43px;
+            height: 43px;
+            border-radius: 50%;
+            border: 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,.2);
+            cursor: pointer;
+            font-size: 20px;
+            color: #54656f;
+            display: none;
+            transition: background .15s;
+        }
+
+        #scrollBottom:hover {
+            background: #f0f2f5;
+        }
+
+        /* =========================================================
+           INFO PANEL
+           ========================================================= */
+        #infoPanel {
+            display: none;
+            position: absolute;
+            top: 62px;
+            right: 0;
+            width: 360px;
+            max-width: 92vw;
+            bottom: 0;
+            background: white;
+            z-index: 20;
+            box-shadow: -3px 0 10px rgba(0,0,0,.15);
+            overflow-y: auto;
+            transition: background .3s, color .3s;
+        }
+
+        .info-header {
+            background: #f0f2f5;
+            padding: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background .3s;
+        }
+
+        .info-header button {
+            border: 0;
+            background: transparent;
+            font-size: 22px;
+            cursor: pointer;
+            color: #54656f;
+        }
+
+        .info-content {
+            padding: 18px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            transition: border-color .3s;
+        }
+
+        .stat span:last-child {
+            font-weight: 600;
+        }
+
+        .stat-group {
+            margin-top: 16px;
+        }
+
+        .stat-group-title {
+            font-weight: 600;
+            color: #008069;
+            font-size: 13px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 4px;
+        }
+
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .stat-bar .bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stat-bar .bar-fill {
+            height: 100%;
+            background: #25d366;
+            border-radius: 3px;
+            transition: width .3s;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .export-buttons button {
+            border: 0;
+            background: #008069;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background .2s;
+        }
+
+        .export-buttons button:hover {
+            background: #006f5b;
+        }
+
+        /* =========================================================
+           PANEL DE MARCADOS
+           ========================================================= */
+        #bookmarksPanel {
+            display: none;
+            position: absolute;
+            top: 62px;
+            left: 0;
+            width: 320px;
+            max-width: 88vw;
+            bottom: 0;
+            background: white;
+            z-index: 15;
+            box-shadow: 3px 0 10px rgba(0,0,0,.15);
+            overflow-y: auto;
+            transition: background .3s, color .3s;
+            padding: 16px;
+        }
+
+        #bookmarksPanel h3 {
+            margin-top: 0;
+        }
+
+        .bookmark-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .bookmark-item:hover {
+            background: rgba(0,0,0,.03);
+        }
+
+        /* =========================================================
+           GALERÍA MULTIMEDIA
+           ========================================================= */
+        #galleryPanel {
+            display: none;
+            position: absolute;
+            top: 62px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 25;
+            overflow-y: auto;
+            padding: 20px;
+            color: white;
+        }
+
+        #galleryPanel h3 {
+            margin-top: 0;
+            color: white;
+        }
+
+        #galleryClose {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 32px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            z-index: 26;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            padding-top: 20px;
+        }
+
+        .gallery-item {
+            background: rgba(255,255,255,.1);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .2s;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item .file-icon-big {
+            font-size: 40px;
+            opacity: 0.7;
+        }
+
+        /* =========================================================
+           MODAL IMAGEN (con navegación ← →)
+           ========================================================= */
+        #imageModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(0,0,0,.9);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #modalImage {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        #closeModal {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 32px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            z-index: 5001;
+        }
+
+        .modal-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 40px;
+            background: rgba(0,0,0,.5);
+            border: 0;
+            cursor: pointer;
+            padding: 20px 12px;
+            z-index: 5002;
+            border-radius: 4px;
+            transition: background .2s;
+        }
+
+        .modal-nav:hover {
+            background: rgba(255,255,255,.2);
+        }
+
+        .modal-nav.prev {
+            left: 10px;
+        }
+
+        .modal-nav.next {
+            right: 10px;
+        }
+
+        /* =========================================================
+           LOADING (con barra de progreso)
+           ========================================================= */
+        #loading {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 4000;
+            background: rgba(255,255,255,.85);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: background .3s;
+        }
+
+        .spinner {
+            width: 45px;
+            height: 45px;
+            border: 4px solid #ddd;
+            border-top-color: #008069;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: #54656f;
+        }
+
+        .progress-bar {
+            margin-top: 15px;
+            width: 80%;
+            max-width: 400px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #25d366;
+            border-radius: 4px;
+            transition: width .3s;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+        @media (max-width: 700px) {
+            .welcome-box {
+                padding: 20px 16px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+                font-size: 12px;
+                padding: 10px 12px;
+            }
+
+            #messages {
+                padding: 8px 2.5%;
+            }
+
+            .message {
+                max-width: 88%;
+            }
+
+            .header {
+                height: 56px;
+                min-height: 56px;
+                padding: 0 8px;
+                gap: 4px;
+            }
+
+            .header-actions .icon-button {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            #infoPanel {
+                top: 56px;
+                width: 92%;
+            }
+
+            #bookmarksPanel {
+                top: 56px;
+                width: 88%;
+            }
+
+            #galleryPanel {
+                top: 56px;
+            }
+
+            .media-image {
+                max-height: 330px;
+            }
+
+            .pdf-preview iframe {
+                height: 200px;
+            }
+
+            .header-select {
+                max-width: 70px;
+                font-size: 11px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .modal-nav {
+                font-size: 28px;
+                padding: 14px 8px;
+            }
+
+            .modal-nav.prev {
+                left: 4px;
+            }
+
+            .modal-nav.next {
+                right: 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 14px;
+            }
+            .header-subtitle {
+                font-size: 10px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =========================================================
+         PANTALLA INICIAL
+         ========================================================= -->
+    <div id="welcome">
+        <div class="welcome-box">
+            <div class="whatsapp-logo">◉</div>
+            <h1>WhatsApp Chat Viewer v1.0.0</h1>
+
+            <div class="features-grid">
+                <span><span class="emoji">📂</span> <strong>Cargar</strong> carpeta o ZIP</span>
+                <span><span class="emoji">💬</span> <strong>Mensajes</strong> con emojis nativos</span>
+                <span><span class="emoji">🖼️</span> <strong>Multimedia</strong> (img, video, audio, PDF)</span>
+                <span><span class="emoji">🔍</span> <strong>Búsqueda</strong> por texto o tipo (<code>image:</code>)</span>
+                <span><span class="emoji">⭐</span> <strong>Marcadores</strong> y <strong>copiar</strong> mensaje</span>
+                <span><span class="emoji">📊</span> <strong>Estadísticas</strong> avanzadas</span>
+                <span><span class="emoji">📅</span> <strong>Navegación</strong> por fechas</span>
+                <span><span class="emoji">👤</span> <strong>Filtro</strong> por remitente</span>
+                <span><span class="emoji">🖼️</span> <strong>Galería</strong> multimedia</span>
+                <span><span class="emoji">🌙</span> <strong>Tema oscuro</strong> / claro</span>
+                <span><span class="emoji">🔤</span> <strong>Tamaño</strong> de texto ajustable</span>
+                <span><span class="emoji">💾</span> <strong>Exportar</strong> a TXT o HTML</span>
+                <span><span class="emoji">⌨️</span> <strong>Atajos</strong> (Ctrl+F, Esc)</span>
+                <span><span class="emoji">💾</span> <strong>Persistencia</strong> (IndexedDB + localStorage)</span>
+                <span><span class="emoji">🔒</span> <strong>Privacidad</strong> total (local)</span>
+                <span><span class="emoji">🔄</span> <strong>Sin virtual scrolling</strong> (mensajes completos)</span>
+            </div>
+
+            <div id="savedChatInfo" style="display:none; margin:10px 0;">
+                <p style="color:#008069; font-weight:600;">💾 Hay una conversación guardada en el navegador.</p>
+                <button class="big-button outline" id="loadSavedButton">Cargar conversación guardada</button>
+                <button class="big-button" id="deleteSavedButton" style="background:#c0392b;">Eliminar guardado</button>
+            </div>
+
+            <p>
+                O seleccioná <strong>la carpeta completa</strong> o un
+                <strong>archivo ZIP</strong> de exportación.
+            </p>
+
+            <div class="button-group">
+                <button class="big-button" id="selectFolderButton">
+                    📁 Seleccionar carpeta
+                </button>
+                <button class="big-button secondary" id="selectZipButton">
+                    📦 Seleccionar ZIP
+                </button>
+            </div>
+            <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+            <input type="file" id="zipInput" accept=".zip" style="display:none">
+
+            <div class="note">
+                🔒 Todo se procesa localmente en tu computadora.
+                Ningún archivo se sube a Internet.
+            </div>
+            <div id="error"></div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         DRAG & DROP OVERLAY
+         ========================================================= -->
+    <div id="dropOverlay">📂 Soltá la carpeta o ZIP aquí</div>
+
+    <!-- =========================================================
+         LOADING (con barra de progreso)
+         ========================================================= -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Procesando conversación...</div>
+        <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+    </div>
+
+    <!-- =========================================================
+         APP
+         ========================================================= -->
+    <div id="app">
+        <div class="app">
+
+            <!-- HEADER -->
+            <div class="header">
+                <div class="avatar">💬</div>
+                <div class="header-info">
+                    <div class="header-title" id="chatTitle">Conversación</div>
+                    <div class="header-subtitle" id="chatSubtitle">Cargando...</div>
+                </div>
+                <div class="header-actions">
+
+                    <select id="filterSender" class="header-select" title="Filtrar por remitente">
+                        <option value="__all__">Todos</option>
+                    </select>
+
+                    <button class="icon-button" id="prevDay" title="Día anterior">◀</button>
+                    <input type="date" id="datePicker" style="background:rgba(255,255,255,.15);border:0;border-radius:4px;color:white;padding:3px 6px;font-size:12px;max-width:110px;cursor:pointer;">
+                    <button class="icon-button" id="nextDay" title="Día siguiente">▶</button>
+
+                    <button class="icon-button" id="textSizeSmall" title="Texto pequeño">A⁻</button>
+                    <button class="icon-button" id="textSizeNormal" title="Texto normal">A</button>
+                    <button class="icon-button" id="textSizeLarge" title="Texto grande">A⁺</button>
+
+                    <button class="icon-button" id="themeToggle" title="Tema oscuro/claro">🌙</button>
+                    <button class="icon-button" id="bookmarksToggle" title="Marcadores">⭐</button>
+                    <button class="icon-button" id="galleryToggle" title="Galería multimedia">🖼</button>
+                    <button class="icon-button" id="searchButton" title="Buscar (Ctrl+F)">🔍</button>
+                    <button class="icon-button" id="infoButton" title="Información">⋮</button>
+                </div>
+            </div>
+
+            <!-- SEARCH -->
+            <div id="searchPanel">
+                <div class="search-row">
+                    <input type="text" id="searchInput" placeholder="Buscar... (ej: 'image:' para imágenes)" autocomplete="off">
+                    <div class="search-nav">
+                        <button id="searchPrev" title="Anterior">↑</button>
+                        <button id="searchNext" title="Siguiente">↓</button>
+                    </div>
+                    <div class="search-count" id="searchCount">0</div>
+                </div>
+            </div>
+
+            <!-- CHAT -->
+            <div class="chat-area">
+                <div id="messages"></div>
+                <button id="scrollBottom" title="Ir al final">↓</button>
+
+                <!-- PANEL DE MARCADOS -->
+                <div id="bookmarksPanel">
+                    <h3>⭐ Mensajes marcados</h3>
+                    <div id="bookmarksList"></div>
+                    <p style="color:#888;font-size:13px;" id="noBookmarks">No hay mensajes marcados.</p>
+                </div>
+
+                <!-- GALERÍA MULTIMEDIA -->
+                <div id="galleryPanel">
+                    <button id="galleryClose">×</button>
+                    <h3>🖼 Galería multimedia</h3>
+                    <div class="gallery-grid" id="galleryGrid"></div>
+                </div>
+
+                <!-- INFO PANEL -->
+                <div id="infoPanel">
+                    <div class="info-header">
+                        <span>Información</span>
+                        <button id="closeInfoButton">×</button>
+                    </div>
+                    <div class="info-content" id="infoContent">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL IMAGEN (con navegación ← →)
+         ========================================================= -->
+    <div id="imageModal">
+        <button id="closeModal">×</button>
+        <button class="modal-nav prev" id="modalPrev">‹</button>
+        <img id="modalImage" src="" alt="Imagen">
+        <button class="modal-nav next" id="modalNext">›</button>
+    </div>
+
+    <!-- JSZip desde CDN (se puede sustituir por local) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
+    </script>
+
+    <script>
+        /* =========================================================
+           CONFIGURACIÓN DE SEGURIDAD Y LÍMITES (AUMENTADOS)
+           ========================================================= */
+        const CONFIG = {
+            MAX_ZIP_SIZE: 500 * 1024 * 1024, // 500 MB
+            MAX_ZIP_FILES: 5000,
+            MAX_FILE_SIZE: 10 * 1024 * 1024, // 10 MB por archivo
+            MAX_TOTAL_UNCOMPRESSED: 1024 * 1024 * 1024, // 1 GB
+            DB_NAME: 'WhatsAppViewerDB',
+            DB_VERSION: 1,
+            STORE_NAME: 'conversations',
+            PREF_STORE: 'preferences'
+        };
+
+        /* =========================================================
+           UTILIDADES: SANITIZACIÓN, HASH, IDS
+           ========================================================= */
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+            return String(text).replace(/[&<>"'`=/]/g, function(s) { return map[s]; });
+        }
+
+        function escapeHtmlAttr(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>"']/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                if (m === "'") return '&#039;';
+                return m;
+            });
+        }
+
+        function generateMessageId(msg) {
+            const str = (msg.sender || '') + '|' + (msg.text || '') + '|' + (msg.date ? msg.date.getTime() : '') + '|' + (msg
+                .dateString || '');
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return 'msg_' + Math.abs(hash).toString(36) + '_' + Date.now().toString(36).slice(-4);
+        }
+
+        /* =========================================================
+           INDEXEDDB (persistencia de conversaciones y bookmarks)
+           ========================================================= */
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                if (db && db.name === CONFIG.DB_NAME) { resolve(db); return; }
+                const request = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
+                request.onupgradeneeded = function(e) {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(CONFIG.STORE_NAME)) {
+                        db.createObjectStore(CONFIG.STORE_NAME, { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains(CONFIG.PREF_STORE)) {
+                        db.createObjectStore(CONFIG.PREF_STORE, { keyPath: 'key' });
+                    }
+                };
+                request.onsuccess = function(e) {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                request.onerror = function(e) {
+                    reject(e.target.error);
+                };
+            });
+        }
+
+        async function saveConversation(data) {
+            try {
+                const db = await openDB();
+                const tx = db.transaction(CONFIG.STORE_NAME, 'readwrite');
+                const store = tx.objectStore(CONFIG.STORE_NAME);
+                store.put({ id: 'current', data: data, timestamp: Date.now() });
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = reject;
+                });
+            } catch (err) {
+                console.warn('Error guardando conversación:', err);
+            }
+        }
+
+        async function loadConversation() {
+            try {
+                const db = await openDB();
+                const tx = db.transaction(CONFIG.STORE_NAME, 'readonly');
+                const store = tx.objectStore(CONFIG.STORE_NAME);
+                const result = await new Promise((resolve, reject) => {
+                    const req = store.get('current');
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+                return result ? result.data : null;
+            } catch (err) {
+                console.warn('Error cargando conversación:', err);
+                return null;
+            }
+        }
+
+        async function deleteConversation() {
+            try {
+                const db = await openDB();
+                const tx = db.transaction(CONFIG.STORE_NAME, 'readwrite');
+                const store = tx.objectStore(CONFIG.STORE_NAME);
+                store.delete('current');
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = reject;
+                });
+                await savePreference('bookmarks', []);
+                await savePreference('chatName', '');
+            } catch (err) {
+                console.warn('Error eliminando conversación:', err);
+            }
+        }
+
+        async function savePreference(key, value) {
+            try {
+                const db = await openDB();
+                const tx = db.transaction(CONFIG.PREF_STORE, 'readwrite');
+                const store = tx.objectStore(CONFIG.PREF_STORE);
+                store.put({ key: key, value: JSON.stringify(value) });
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = reject;
+                });
+            } catch (err) {
+                console.warn('Error guardando preferencia:', err);
+            }
+        }
+
+        async function loadPreference(key) {
+            try {
+                const db = await openDB();
+                const tx = db.transaction(CONFIG.PREF_STORE, 'readonly');
+                const store = tx.objectStore(CONFIG.PREF_STORE);
+                const result = await new Promise((resolve, reject) => {
+                    const req = store.get(key);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+                return result ? JSON.parse(result.value) : null;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        /* =========================================================
+           LOCALSTORAGE (preferencias de UI)
+           ========================================================= */
+        function saveUIPref(key, value) {
+            try { localStorage.setItem('wv_' + key, JSON.stringify(value)); } catch (e) {}
+        }
+
+        function loadUIPref(key, defaultValue) {
+            try {
+                const val = localStorage.getItem('wv_' + key);
+                return val ? JSON.parse(val) : defaultValue;
+            } catch (e) { return defaultValue; }
+        }
+
+        /* =========================================================
+           ESTADO GLOBAL
+           ========================================================= */
+        const state = {
+            messages: [],
+            participants: new Set(),
+            media: { images: 0, videos: 0, audios: 0, documents: 0, files: 0 },
+            files: new Map(),
+            objectUrls: new Map(),
+            stats: {},
+            bookmarks: new Set(),
+            currentFilter: '__all__',
+            currentDate: null,
+            textSize: 'normal',
+            darkMode: false,
+            chatTitle: 'Conversación',
+            chatSubtitle: '',
+            currentSearchResults: [],
+            searchIndex: -1,
+            galleryItems: [],
+        };
+
+        /* =========================================================
+           ELEMENTOS DOM
+           ========================================================= */
+        const $ = id => document.getElementById(id);
+        const welcome = $('welcome');
+        const app = $('app');
+        const folderInput = $('folderInput');
+        const zipInput = $('zipInput');
+        const selectFolderButton = $('selectFolderButton');
+        const selectZipButton = $('selectZipButton');
+        const messagesContainer = $('messages');
+        const loading = $('loading');
+        const loadingText = $('loadingText');
+        const progressFill = $('progressFill');
+        const errorBox = $('error');
+        const searchPanel = $('searchPanel');
+        const searchInput = $('searchInput');
+        const searchCount = $('searchCount');
+        const searchPrev = $('searchPrev');
+        const searchNext = $('searchNext');
+        const scrollBottom = $('scrollBottom');
+        const infoPanel = $('infoPanel');
+        const closeInfoButton = $('closeInfoButton');
+        const infoContent = $('infoContent');
+        const imageModal = $('imageModal');
+        const modalImage = $('modalImage');
+        const modalPrev = $('modalPrev');
+        const modalNext = $('modalNext');
+        const closeModal = $('closeModal');
+        const dropOverlay = $('dropOverlay');
+        const filterSender = $('filterSender');
+        const prevDay = $('prevDay');
+        const nextDay = $('nextDay');
+        const datePicker = $('datePicker');
+        const themeToggle = $('themeToggle');
+        const bookmarksToggle = $('bookmarksToggle');
+        const bookmarksPanel = $('bookmarksPanel');
+        const bookmarksList = $('bookmarksList');
+        const noBookmarks = $('noBookmarks');
+        const textSizeSmall = $('textSizeSmall');
+        const textSizeNormal = $('textSizeNormal');
+        const textSizeLarge = $('textSizeLarge');
+        const galleryToggle = $('galleryToggle');
+        const galleryPanel = $('galleryPanel');
+        const galleryGrid = $('galleryGrid');
+        const galleryClose = $('galleryClose');
+        const loadSavedButton = $('loadSavedButton');
+        const deleteSavedButton = $('deleteSavedButton');
+        const savedChatInfo = $('savedChatInfo');
+
+        /* =========================================================
+           DRAG & DROP (carpeta o ZIP)
+           ========================================================= */
+        document.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropOverlay.style.display = 'flex';
+        });
+
+        document.addEventListener('dragleave', e => {
+            e.preventDefault();
+            if (!e.relatedTarget || !e.relatedTarget.closest) {
+                dropOverlay.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('drop', async e => {
+            e.preventDefault();
+            dropOverlay.style.display = 'none';
+            const items = e.dataTransfer.items;
+            if (!items) return;
+
+            let zipFile = null;
+            for (const item of items) {
+                if (item.kind === 'file') {
+                    const file = item.getAsFile();
+                    if (file && file.name.toLowerCase().endsWith('.zip')) {
+                        zipFile = file;
+                        break;
+                    }
+                }
+            }
+            if (zipFile) {
+                await loadZipFile(zipFile);
+                return;
+            }
+
+            let folderFiles = [];
+            for (const item of items) {
+                const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                if (entry && entry.isDirectory) {
+                    folderFiles = await readDirectory(entry);
+                    break;
+                }
+            }
+            if (folderFiles.length) {
+                await processFiles(folderFiles);
+            } else {
+                const files = Array.from(e.dataTransfer.files || []);
+                if (files.length) await processFiles(files);
+            }
+        });
+
+        async function readDirectory(entry) {
+            const reader = entry.createReader();
+            const files = [];
+            const readEntries = () => new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+            let entries = [];
+            do {
+                entries = await readEntries();
+                for (const ent of entries) {
+                    if (ent.isFile) {
+                        const file = await new Promise(resolve => ent.file(resolve));
+                        if (file.size > CONFIG.MAX_FILE_SIZE) {
+                            console.warn(`Archivo ${file.name} excede el límite de ${CONFIG.MAX_FILE_SIZE/1024/1024} MB, se omitirá.`);
+                            continue;
+                        }
+                        files.push(file);
+                    } else if (ent.isDirectory) {
+                        const subFiles = await readDirectory(ent);
+                        files.push(...subFiles);
+                    }
+                }
+            } while (entries.length > 0);
+            return files;
+        }
+
+        /* =========================================================
+           CARGA DE ZIP CON JSZIP, LÍMITES Y PROGRESO
+           ========================================================= */
+        async function loadZipFile(file) {
+            if (file.size > CONFIG.MAX_ZIP_SIZE) {
+                showError(`El archivo ZIP es demasiado grande (${(file.size/1024/1024).toFixed(1)} MB). Límite: ${CONFIG.MAX_ZIP_SIZE/1024/1024} MB.`);
+                return;
+            }
+
+            showLoading('Leyendo ZIP...');
+            try {
+                if (typeof JSZip === 'undefined') {
+                    throw new Error('La librería JSZip no está disponible. Verifica tu conexión a Internet.');
+                }
+
+                const zip = await JSZip.loadAsync(file);
+                const entries = Object.keys(zip.files);
+
+                if (entries.length > CONFIG.MAX_ZIP_FILES) {
+                    throw new Error(`El ZIP contiene demasiados archivos (${entries.length}). Límite: ${CONFIG.MAX_ZIP_FILES}.`);
+                }
+
+                const files = [];
+                let processed = 0;
+                const total = entries.length;
+                let totalUncompressed = 0;
+
+                for (const relativePath of entries) {
+                    const zipEntry = zip.files[relativePath];
+                    if (!zipEntry.dir) {
+                        const blob = await zipEntry.async('blob');
+                        if (blob.size > CONFIG.MAX_FILE_SIZE) {
+                            console.warn(`Archivo ${relativePath} excede el límite de ${CONFIG.MAX_FILE_SIZE/1024/1024} MB, se omitirá.`);
+                            processed++;
+                            continue;
+                        }
+                        totalUncompressed += blob.size;
+                        if (totalUncompressed > CONFIG.MAX_TOTAL_UNCOMPRESSED) {
+                            throw new Error(`El tamaño total descomprimido (${(totalUncompressed/1024/1024).toFixed(1)} MB) excede el límite de ${CONFIG.MAX_TOTAL_UNCOMPRESSED/1024/1024} MB.`);
+                        }
+                        const name = relativePath.split('/').pop();
+                        const fileObj = new File([blob], name, { type: blob.type });
+                        fileObj.webkitRelativePath = relativePath;
+                        files.push(fileObj);
+                    }
+                    processed++;
+                    const pct = Math.round((processed / total) * 100);
+                    progressFill.style.width = pct + '%';
+                    loadingText.textContent = `Extrayendo ZIP... ${pct}%`;
+                }
+
+                await processFiles(files);
+            } catch (err) {
+                hideLoading();
+                showError('Error al leer el ZIP: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        /* =========================================================
+           SELECCIÓN DE CARPETA Y ZIP (botones)
+           ========================================================= */
+        selectFolderButton.addEventListener('click', () => folderInput.click());
+        folderInput.addEventListener('change', async event => {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            await processFiles(files);
+            folderInput.value = '';
+        });
+
+        selectZipButton.addEventListener('click', () => zipInput.click());
+        zipInput.addEventListener('change', async event => {
+            if (event.target.files.length) {
+                await loadZipFile(event.target.files[0]);
+            }
+            zipInput.value = '';
+        });
+
+        /* =========================================================
+           PROCESAR ARCHIVOS (el corazón del visor)
+           ========================================================= */
+        async function processFiles(files) {
+            showLoading('Analizando archivos...');
+            console.log('Archivos seleccionados:', files.map(f => f.name));
+
+            try {
+                state.files.clear();
+                state.messages = [];
+                state.participants.clear();
+                state.media = { images: 0, videos: 0, audios: 0, documents: 0, files: 0 };
+                state.objectUrls.forEach(u => URL.revokeObjectURL(u));
+                state.objectUrls.clear();
+                state.currentSearchResults = [];
+                state.searchIndex = -1;
+                state.bookmarks.clear();
+                state.currentFilter = '__all__';
+                state.galleryItems = [];
+
+                // Indexar archivos
+                for (const file of files) {
+                    const name = file.name;
+                    const clean = cleanFilename(name);
+                    state.files.set(clean, file);
+                    state.files.set(name, file);
+                    if (file.webkitRelativePath) {
+                        const relPath = file.webkitRelativePath;
+                        state.files.set(relPath, file);
+                        state.files.set(cleanFilename(relPath), file);
+                    }
+                }
+
+                let chatFile = findChatFile(files);
+                if (!chatFile) {
+                    throw new Error('No encontré _chat.txt ni chat.txt dentro de la carpeta o ZIP.');
+                }
+
+                loadingText.textContent = 'Leyendo ' + chatFile.name + '...';
+                const text = await chatFile.text();
+
+                loadingText.textContent = 'Interpretando mensajes...';
+                state.messages = parseWhatsAppChat(text);
+
+                if (!state.messages.length) {
+                    throw new Error('El archivo de chat no contiene mensajes válidos.');
+                }
+
+                // Asignar IDs únicos
+                for (const msg of state.messages) {
+                    msg.id = generateMessageId(msg);
+                }
+
+                // Cargar bookmarks guardados
+                const savedBookmarks = await loadPreference('bookmarks');
+                if (savedBookmarks && Array.isArray(savedBookmarks)) {
+                    const msgIds = new Set(state.messages.map(m => m.id));
+                    state.bookmarks = new Set(savedBookmarks.filter(id => msgIds.has(id)));
+                }
+
+                for (const msg of state.messages) {
+                    if (msg.sender) state.participants.add(msg.sender);
+                }
+
+                calculateMediaStats();
+                calculateAdvancedStats();
+                buildGallery();
+
+                loadingText.textContent = 'Construyendo conversación...';
+
+                updateSenderFilter();
+                updateHeader();
+                updateInfoPanel();
+                updateBookmarksPanel();
+
+                // Renderizar todos los mensajes (sin virtual scrolling)
+                renderChat();
+
+                welcome.style.display = 'none';
+                app.style.display = 'block';
+
+                // Guardar en IndexedDB
+                const chatData = {
+                    messages: state.messages,
+                    participants: [...state.participants],
+                    media: state.media,
+                    stats: state.stats,
+                    chatTitle: state.chatTitle,
+                    chatSubtitle: state.chatSubtitle,
+                };
+                await saveConversation(chatData);
+                await savePreference('chatName', state.chatTitle);
+
+                hideLoading();
+                setTimeout(() => scrollToBottom(), 100);
+
+            } catch (error) {
+                hideLoading();
+                showError(error.message || 'No se pudo abrir la conversación.');
+                console.error(error);
+            }
+        }
+
+        /* =========================================================
+           ENCONTRAR CHAT.TXT / _CHAT.TXT
+           ========================================================= */
+        function findChatFile(files) {
+            let file = files.find(f => f.name.toLowerCase() === '_chat.txt');
+            if (file) return file;
+            file = files.find(f => f.name.toLowerCase() === 'chat.txt');
+            if (file) return file;
+            file = files.find(f => {
+                const lower = f.name.toLowerCase();
+                return lower.includes('chat') && lower.endsWith('.txt');
+            });
+            if (file) return file;
+            for (const f of files) {
+                if (f.webkitRelativePath && f.webkitRelativePath.toLowerCase().includes('_chat.txt')) {
+                    return f;
+                }
+                if (f.webkitRelativePath && f.webkitRelativePath.toLowerCase().includes('chat.txt')) {
+                    return f;
+                }
+            }
+            return null;
+        }
+
+        /* =========================================================
+           LIMPIEZA DE NOMBRES
+           ========================================================= */
+        function cleanFilename(name) {
+            if (!name) return '';
+            return name
+                .replace(/[\u200E\u200F\u202A\u202B\u202C\u202D\u202E\uFEFF]/g, '')
+                .trim();
+        }
+
+        function normalizeFilename(name) {
+            return cleanFilename(String(name).split('/').pop().trim().toLowerCase());
+        }
+
+        /* =========================================================
+           PARSER DE WHATSAPP (Android, iPhone, citas, eventos sistema)
+           ========================================================= */
+        function parseWhatsAppChat(text) {
+            text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            const lines = text.split('\n');
+            const messages = [];
+            let current = null;
+
+            for (const line of lines) {
+                const parsed = parseMessageStart(line);
+                if (parsed) {
+                    if (current) {
+                        finalizeMessage(current);
+                        messages.push(current);
+                    }
+                    current = parsed;
+                } else {
+                    if (current) {
+                        current.text += '\n' + line;
+                    }
+                }
+            }
+            if (current) {
+                finalizeMessage(current);
+                messages.push(current);
+            }
+            return messages;
+        }
+
+        function parseMessageStart(line) {
+            let match = line.match(/^(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\s*[-–]\s*(.*)$/);
+            if (!match) {
+                match = line.match(/^\[(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)$/);
+                if (!match) return null;
+            }
+            const dateStr = match[1];
+            const timeStr = match[2];
+            const rest = match[3];
+
+            const sepIndex = rest.indexOf(': ');
+            let sender = null;
+            let text = rest;
+            if (sepIndex > 0) {
+                sender = rest.substring(0, sepIndex).trim();
+                text = rest.substring(sepIndex + 2);
+            }
+
+            const date = parseDate(dateStr);
+            return {
+                id: null,
+                dateString: dateStr,
+                timeString: timeStr,
+                sender: sender,
+                text: text,
+                date: date,
+                attachments: [],
+                isSystem: false,
+                systemIcon: null
+            };
+        }
+
+        function parseDate(str) {
+            const clean = str.replace(/[.-]/g, '/');
+            const parts = clean.split('/');
+            if (parts.length !== 3) return null;
+            let a = parseInt(parts[0], 10);
+            let b = parseInt(parts[1], 10);
+            let c = parseInt(parts[2], 10);
+            if (c < 100) c += 2000;
+            return new Date(c, b - 1, a);
+        }
+
+        function finalizeMessage(message) {
+            if (!message.sender) {
+                message.isSystem = true;
+                message.systemIcon = detectSystemIcon(message.text);
+            }
+
+            message.text = message.text.trim();
+            const attachments = detectAllAttachments(message.text);
+            message.attachments = attachments;
+            for (const att of attachments) {
+                if (att.name) {
+                    let regex = new RegExp(att.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+                    message.text = message.text.replace(regex, '').trim();
+                }
+            }
+            message.text = message.text.replace(/[\(\)]/g, '').trim();
+            if (message.text === '' || message.text.toLowerCase().includes('archivo adjunto') || message.text.toLowerCase()
+                .includes('media omitted')) {
+                message.text = '';
+            }
+        }
+
+        function detectSystemIcon(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('llamada') || lower.includes('call')) return '📞';
+            if (lower.includes('creó') || lower.includes('creó el grupo')) return '👥';
+            if (lower.includes('salió') || lower.includes('left')) return '🚪';
+            if (lower.includes('agregó') || lower.includes('added')) return '➕';
+            if (lower.includes('cifrado') || lower.includes('encrypted')) return '🔒';
+            if (lower.includes('ubicación') || lower.includes('location')) return '📍';
+            if (lower.includes('foto de perfil') || lower.includes('profile photo')) return '🖼️';
+            return 'ℹ️';
+        }
+
+        function detectAllAttachments(text) {
+            const results = [];
+            const regex = /([^\s"'<>()]+\.(?:jpg|jpeg|png|gif|webp|bmp|heic|heif|mp4|mov|mkv|webm|m4a|mp3|ogg|opus|wav|aac|pdf|txt|doc|docx|xls|xlsx|ppt|pptx|vcf|zip|rar|7z))/gi;
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                let name = cleanFilename(match[1]);
+                const file = findFile(name);
+                results.push({ name, file });
+            }
+            if (results.length === 0) {
+                const tokens = text.split(/[\s,;]+/);
+                for (const token of tokens) {
+                    let cleaned = token.replace(/^["'(]/, '').replace(/[)"',.]$/, '');
+                    cleaned = cleanFilename(cleaned);
+                    if (cleaned && /\.(jpg|jpeg|png|gif|webp|bmp|heic|heif|mp4|mov|mkv|webm|m4a|mp3|ogg|opus|wav|aac|pdf|txt|doc|docx|xls|xlsx|ppt|pptx|vcf|zip|rar|7z)$/i
+                        .test(cleaned)) {
+                        const file = findFile(cleaned);
+                        if (file) {
+                            results.push({ name: cleaned, file });
+                        }
+                    }
+                }
+            }
+            if (text.includes('<Media omitted>') && results.length === 0) {
+                results.push({ name: 'Media omitted', file: null });
+            }
+            return results;
+        }
+
+        function findFile(name) {
+            if (!name) return null;
+            const cleaned = cleanFilename(name);
+            if (state.files.has(cleaned)) return state.files.get(cleaned);
+            if (state.files.has(name)) return state.files.get(name);
+            const norm = normalizeFilename(cleaned);
+            for (const [key, file] of state.files) {
+                if (normalizeFilename(key) === norm) return file;
+            }
+            return null;
+        }
+
+        /* =========================================================
+           RENDERIZADO COMPLETO (sin virtual scrolling)
+           ========================================================= */
+        function renderChat() {
+            messagesContainer.innerHTML = '';
+            let lastDate = null;
+
+            const messages = state.messages;
+
+            // Aplicar filtros (remitente + fecha)
+            let filtered = messages;
+            if (state.currentFilter !== '__all__') {
+                filtered = filtered.filter(m => m.sender === state.currentFilter);
+            }
+            if (state.currentDate) {
+                const target = new Date(state.currentDate);
+                target.setHours(0, 0, 0, 0);
+                const nextDay = new Date(target);
+                nextDay.setDate(nextDay.getDate() + 1);
+                filtered = filtered.filter(m => {
+                    if (!m.date) return false;
+                    const d = new Date(m.date);
+                    d.setHours(0, 0, 0, 0);
+                    return d >= target && d < nextDay;
+                });
+            }
+
+            if (!filtered.length) {
+                const empty = document.createElement('div');
+                empty.style.textAlign = 'center';
+                empty.style.padding = '40px 20px';
+                empty.style.color = '#888';
+                empty.textContent = 'No hay mensajes para mostrar con los filtros actuales.';
+                messagesContainer.appendChild(empty);
+                return;
+            }
+
+            for (let i = 0; i < filtered.length; i++) {
+                const msg = filtered[i];
+                const dateKey = msg.date ? msg.date.toDateString() : msg.dateString;
+
+                if (dateKey !== lastDate) {
+                    const sep = document.createElement('div');
+                    sep.className = 'date-separator';
+                    const label = document.createElement('div');
+                    label.className = 'date-label';
+                    label.textContent = formatDateLabel(msg.date, msg.dateString);
+                    sep.appendChild(label);
+                    messagesContainer.appendChild(sep);
+                    lastDate = dateKey;
+                }
+
+                if (msg.isSystem || !msg.sender) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'system-message';
+                    const span = document.createElement('span');
+                    if (msg.systemIcon) {
+                        const icon = document.createElement('span');
+                        icon.className = 'sys-icon';
+                        icon.textContent = msg.systemIcon;
+                        span.appendChild(icon);
+                    }
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = escapeHtml(msg.text);
+                    span.appendChild(textSpan);
+                    wrapper.appendChild(span);
+                    messagesContainer.appendChild(wrapper);
+                    continue;
+                }
+
+                const outgoing = determineOutgoing(msg, filtered);
+                const row = document.createElement('div');
+                row.className = 'message-row ' + (outgoing ? 'outgoing' : 'incoming');
+                row.dataset.id = msg.id;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'message';
+
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'sender';
+                senderDiv.textContent = msg.sender;
+                bubble.appendChild(senderDiv);
+
+                if (msg.attachments && msg.attachments.length) {
+                    for (const att of msg.attachments) {
+                        const attEl = createAttachment(att);
+                        if (attEl) bubble.appendChild(attEl);
+                    }
+                }
+
+                let displayText = msg.text;
+                if (displayText && displayText !== '<Media omitted>') {
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'message-text';
+                    const trimmed = displayText.trim();
+                    const emojiOnly = /^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D} \n]+$/u.test(trimmed) &&
+                        trimmed.length > 0;
+                    if (emojiOnly) {
+                        textDiv.classList.add('emoji-only');
+                    }
+                    let formatted = formatMessageText(displayText);
+                    formatted = formatted.replace(/^&gt;\s*(.*)$/gm, '<span style="border-left:2px solid #008069;padding-left:8px;display:block;margin:2px 0;color:#54656f;">$1</span>');
+                    textDiv.innerHTML = formatted;
+                    bubble.appendChild(textDiv);
+                }
+
+                const meta = document.createElement('div');
+                meta.className = 'message-meta';
+
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'action-btn';
+                copyBtn.textContent = '📋';
+                copyBtn.title = 'Copiar mensaje';
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const text = msg.text || '';
+                    navigator.clipboard.writeText(text).then(() => {
+                        copyBtn.textContent = '✅';
+                        setTimeout(() => copyBtn.textContent = '📋', 1500);
+                    }).catch(() => {
+                        const area = document.createElement('textarea');
+                        area.value = text;
+                        document.body.appendChild(area);
+                        area.select();
+                        document.execCommand('copy');
+                        area.remove();
+                        copyBtn.textContent = '✅';
+                        setTimeout(() => copyBtn.textContent = '📋', 1500);
+                    });
+                });
+                meta.appendChild(copyBtn);
+
+                const starBtn = document.createElement('button');
+                starBtn.className = 'action-btn';
+                const isBookmarked = state.bookmarks.has(msg.id);
+                starBtn.textContent = isBookmarked ? '⭐' : '☆';
+                if (isBookmarked) starBtn.classList.add('active');
+                starBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleBookmark(msg.id);
+                });
+                meta.appendChild(starBtn);
+
+                const time = document.createElement('span');
+                time.className = 'time';
+                time.textContent = escapeHtml(msg.timeString || '');
+                meta.appendChild(time);
+
+                if (outgoing) {
+                    const checks = document.createElement('span');
+                    checks.className = 'checks';
+                    checks.textContent = '✓✓';
+                    meta.appendChild(checks);
+                }
+                bubble.appendChild(meta);
+
+                row.appendChild(bubble);
+                messagesContainer.appendChild(row);
+            }
+
+            applyTextSize();
+            updateBookmarksPanel(); // refresca el panel por si hay cambios
+        }
+
+        function formatDateLabel(date, fallback) {
+            if (date && !isNaN(date.getTime())) {
+                return date.toLocaleDateString('es-AR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+            return escapeHtml(fallback || '');
+        }
+
+        function determineOutgoing(message, allMessages) {
+            const participants = [...new Set(allMessages.filter(m => m.sender).map(m => m.sender))];
+            if (participants.length === 2) {
+                return message.sender === participants[1];
+            }
+            return false;
+        }
+
+        /* =========================================================
+           CREAR ELEMENTOS DE ADJUNTOS
+           ========================================================= */
+        function createAttachment(attachment) {
+            const file = attachment.file;
+            if (!file) {
+                const div = document.createElement('div');
+                div.className = 'attachment';
+                div.innerHTML = `<div class="file-card">
+                    <div class="file-icon">📎</div>
+                    <div class="file-info">
+                        <div class="file-name">${escapeHtml(attachment.name)}</div>
+                        <div class="file-type">Archivo no incluido</div>
+                    </div>
+                </div>`;
+                return div;
+            }
+
+            const type = getFileType(file.name);
+            const ext = getExtension(file.name);
+
+            if (ext === 'webp' || type === 'image') {
+                return createImageElement(file);
+            }
+            if (type === 'video') return createVideoElement(file);
+            if (type === 'audio') return createAudioElement(file);
+            if (type === 'document' && ext === 'pdf') {
+                return createPdfElement(file);
+            }
+            return createFileCard(file);
+        }
+
+        function createImageElement(file) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'attachment';
+            const img = document.createElement('img');
+            img.className = 'media-image';
+            img.src = getObjectUrl(file);
+            img.alt = escapeHtmlAttr(file.name);
+            img.loading = 'lazy';
+            img.addEventListener('click', () => {
+                openImageModal(file);
+            });
+            wrapper.appendChild(img);
+            return wrapper;
+        }
+
+        function createVideoElement(file) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'attachment';
+            const video = document.createElement('video');
+            video.className = 'media-video';
+            video.controls = true;
+            video.preload = 'metadata';
+            video.src = getObjectUrl(file);
+            wrapper.appendChild(video);
+            return wrapper;
+        }
+
+        function createAudioElement(file) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'attachment';
+            const audio = document.createElement('audio');
+            audio.className = 'media-audio';
+            audio.controls = true;
+            audio.preload = 'metadata';
+            audio.src = getObjectUrl(file);
+            wrapper.appendChild(audio);
+            return wrapper;
+        }
+
+        function createPdfElement(file) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'attachment';
+            const url = getObjectUrl(file);
+
+            const card = document.createElement('div');
+            card.className = 'file-card';
+            const icon = document.createElement('div');
+            icon.className = 'file-icon';
+            icon.textContent = '📕';
+            const info = document.createElement('div');
+            info.className = 'file-info';
+            const name = document.createElement('div');
+            name.className = 'file-name';
+            name.textContent = escapeHtml(file.name);
+            const meta = document.createElement('div');
+            meta.className = 'file-type';
+            meta.textContent = `PDF · ${formatBytes(file.size)}`;
+            info.appendChild(name);
+            info.appendChild(meta);
+            card.appendChild(icon);
+            card.appendChild(info);
+            wrapper.appendChild(card);
+
+            const preview = document.createElement('div');
+            preview.className = 'pdf-preview';
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.title = escapeHtmlAttr(file.name);
+            preview.appendChild(iframe);
+            wrapper.appendChild(preview);
+
+            const actions = document.createElement('div');
+            actions.className = 'pdf-actions';
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = '⬇ Descargar';
+            downloadBtn.addEventListener('click', () => {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name;
+                a.click();
+            });
+            const openBtn = document.createElement('button');
+            openBtn.textContent = '↗ Abrir en nueva pestaña';
+            openBtn.addEventListener('click', () => {
+                window.open(url, '_blank');
+            });
+            actions.appendChild(downloadBtn);
+            actions.appendChild(openBtn);
+            wrapper.appendChild(actions);
+
+            return wrapper;
+        }
+
+        function createFileCard(file) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'attachment';
+            const link = document.createElement('a');
+            link.className = 'file-card';
+            link.href = getObjectUrl(file);
+            link.download = file.name;
+            link.target = '_blank';
+
+            const icon = document.createElement('div');
+            icon.className = 'file-icon';
+            const type = getFileType(file.name);
+            if (type === 'document') {
+                icon.textContent = getExtension(file.name) === 'pdf' ? '📕' : '📄';
+            } else {
+                icon.textContent = '📎';
+            }
+
+            const info = document.createElement('div');
+            info.className = 'file-info';
+            const name = document.createElement('div');
+            name.className = 'file-name';
+            name.textContent = escapeHtml(file.name);
+            const meta = document.createElement('div');
+            meta.className = 'file-type';
+            meta.textContent = `${getExtension(file.name).toUpperCase()} · ${formatBytes(file.size)}`;
+
+            info.appendChild(name);
+            info.appendChild(meta);
+            link.appendChild(icon);
+            link.appendChild(info);
+            wrapper.appendChild(link);
+            return wrapper;
+        }
+
+        function getObjectUrl(file) {
+            if (state.objectUrls.has(file)) return state.objectUrls.get(file);
+            const url = URL.createObjectURL(file);
+            state.objectUrls.set(file, url);
+            return url;
+        }
+
+        /* =========================================================
+           MODAL DE IMAGEN CON NAVEGACIÓN ← →
+           ========================================================= */
+        let currentGalleryIndex = -1;
+        let galleryFiles = [];
+
+        function openImageModal(file) {
+            const images = [];
+            for (const msg of state.messages) {
+                if (msg.attachments) {
+                    for (const att of msg.attachments) {
+                        if (att.file && getFileType(att.file.name) === 'image') {
+                            images.push(att.file);
+                        }
+                    }
+                }
+            }
+            galleryFiles = images;
+            currentGalleryIndex = images.indexOf(file);
+            if (currentGalleryIndex === -1) currentGalleryIndex = 0;
+            showModalImage(currentGalleryIndex);
+            imageModal.style.display = 'flex';
+        }
+
+        function showModalImage(index) {
+            if (index < 0 || index >= galleryFiles.length) return;
+            currentGalleryIndex = index;
+            const file = galleryFiles[index];
+            const url = getObjectUrl(file);
+            modalImage.src = url;
+            modalImage.alt = escapeHtmlAttr(file.name);
+            modalPrev.style.display = index > 0 ? 'block' : 'none';
+            modalNext.style.display = index < galleryFiles.length - 1 ? 'block' : 'none';
+        }
+
+        modalPrev.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentGalleryIndex > 0) showModalImage(currentGalleryIndex - 1);
+        });
+
+        modalNext.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentGalleryIndex < galleryFiles.length - 1) showModalImage(currentGalleryIndex + 1);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (imageModal.style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (currentGalleryIndex > 0) showModalImage(currentGalleryIndex - 1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (currentGalleryIndex < galleryFiles.length - 1) showModalImage(currentGalleryIndex + 1);
+                } else if (e.key === 'Escape') {
+                    closeImageModal();
+                }
+            }
+        });
+
+        closeModal.addEventListener('click', closeImageModal);
+        imageModal.addEventListener('click', e => {
+            if (e.target === imageModal) closeImageModal();
+        });
+
+        function closeImageModal() {
+            imageModal.style.display = 'none';
+            modalImage.src = '';
+            galleryFiles = [];
+            currentGalleryIndex = -1;
+        }
+
+        /* =========================================================
+           ESTADÍSTICAS
+           ========================================================= */
+        function calculateMediaStats() {
+            state.media = { images: 0, videos: 0, audios: 0, documents: 0, files: 0 };
+            for (const msg of state.messages) {
+                if (!msg.attachments) continue;
+                for (const att of msg.attachments) {
+                    if (!att.file) continue;
+                    const type = getFileType(att.file.name);
+                    if (type === 'image') state.media.images++;
+                    else if (type === 'video') state.media.videos++;
+                    else if (type === 'audio') state.media.audios++;
+                    else if (type === 'document') state.media.documents++;
+                    else state.media.files++;
+                }
+            }
+        }
+
+        function calculateAdvancedStats() {
+            const msgs = state.messages;
+            const dates = msgs.map(m => m.date).filter(d => d && !isNaN(d.getTime()));
+            if (!dates.length) {
+                state.stats = { from: '—', to: '—', avgPerDay: 0, totalDays: 0, topParticipants: [], topWords: [] };
+                return;
+            }
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            const days = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)) || 1;
+            const avg = (msgs.length / days).toFixed(1);
+
+            const senderCount = {};
+            for (const msg of msgs) {
+                if (msg.sender) {
+                    senderCount[msg.sender] = (senderCount[msg.sender] || 0) + 1;
+                }
+            }
+            const topParticipants = Object.entries(senderCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const wordCount = {};
+            for (const msg of msgs) {
+                if (msg.text) {
+                    const words = msg.text.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+                    for (const w of words) {
+                        wordCount[w] = (wordCount[w] || 0) + 1;
+                    }
+                }
+            }
+            const topWords = Object.entries(wordCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            state.stats = {
+                from: minDate.toLocaleDateString('es-AR'),
+                to: maxDate.toLocaleDateString('es-AR'),
+                avgPerDay: avg,
+                totalDays: days,
+                topParticipants,
+                topWords
+            };
+        }
+
+        function getFileType(filename) {
+            const ext = getExtension(filename);
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'].includes(ext)) return 'image';
+            if (['mp4', 'mov', 'mkv', 'webm', 'avi'].includes(ext)) return 'video';
+            if (['m4a', 'mp3', 'ogg', 'opus', 'wav', 'aac', 'flac'].includes(ext)) return 'audio';
+            if (['pdf', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'vcf'].includes(ext)) return 'document';
+            return 'file';
+        }
+
+        function getExtension(filename) {
+            const parts = filename.toLowerCase().split('.');
+            return parts.length > 1 ? parts.pop() : '';
+        }
+
+        /* =========================================================
+           GALERÍA MULTIMEDIA
+           ========================================================= */
+        function buildGallery() {
+            state.galleryItems = [];
+            for (const msg of state.messages) {
+                if (!msg.attachments) continue;
+                for (const att of msg.attachments) {
+                    if (!att.file) continue;
+                    const type = getFileType(att.file.name);
+                    if (type === 'image' || type === 'video' || type === 'audio') {
+                        state.galleryItems.push({
+                            file: att.file,
+                            type: type,
+                            name: att.name,
+                            msg: msg
+                        });
+                    }
+                }
+            }
+        }
+
+        function renderGallery() {
+            const grid = galleryGrid;
+            grid.innerHTML = '';
+            if (!state.galleryItems.length) {
+                grid.innerHTML = '<p style="color:#aaa;text-align:center;grid-column:1/-1;">No hay elementos multimedia.</p>';
+                return;
+            }
+            for (const item of state.galleryItems) {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                const url = getObjectUrl(item.file);
+                if (item.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = escapeHtmlAttr(item.name);
+                    img.loading = 'lazy';
+                    div.appendChild(img);
+                    div.addEventListener('click', () => {
+                        openImageModal(item.file);
+                    });
+                } else if (item.type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = url;
+                    video.muted = true;
+                    video.preload = 'metadata';
+                    div.appendChild(video);
+                    div.addEventListener('click', () => {
+                        const modalVideo = document.createElement('video');
+                        modalVideo.src = url;
+                        modalVideo.controls = true;
+                        modalVideo.style.maxWidth = '95vw';
+                        modalVideo.style.maxHeight = '90vh';
+                        modalVideo.style.display = 'block';
+                        modalVideo.autoplay = true;
+                        const oldImg = modalImage;
+                        oldImg.style.display = 'none';
+                        modalVideo.id = 'modalVideo';
+                        const parent = oldImg.parentNode;
+                        parent.insertBefore(modalVideo, oldImg);
+                        imageModal.style.display = 'flex';
+                        const closeModalVideo = () => {
+                            imageModal.style.display = 'none';
+                            if (modalVideo.parentNode) modalVideo.remove();
+                            oldImg.style.display = 'block';
+                        };
+                        modalVideo.addEventListener('click', e => e.stopPropagation());
+                        imageModal.addEventListener('click', closeModalVideo);
+                        const closeBtn = document.getElementById('closeModal');
+                        closeBtn.onclick = closeModalVideo;
+                    });
+                } else if (item.type === 'audio') {
+                    const icon = document.createElement('div');
+                    icon.className = 'file-icon-big';
+                    icon.textContent = '🎵';
+                    div.appendChild(icon);
+                    div.addEventListener('click', () => {
+                        const audioEl = document.createElement('audio');
+                        audioEl.src = url;
+                        audioEl.controls = true;
+                        audioEl.style.width = '80%';
+                        audioEl.autoplay = true;
+                        const oldImg = modalImage;
+                        oldImg.style.display = 'none';
+                        const container = document.createElement('div');
+                        container.style.display = 'flex';
+                        container.style.flexDirection = 'column';
+                        container.style.alignItems = 'center';
+                        container.style.gap = '20px';
+                        container.appendChild(audioEl);
+                        const closeAudio = () => {
+                            imageModal.style.display = 'none';
+                            audioEl.pause();
+                            if (audioEl.parentNode) audioEl.remove();
+                            oldImg.style.display = 'block';
+                        };
+                        const closeBtn = document.getElementById('closeModal');
+                        closeBtn.onclick = closeAudio;
+                        imageModal.addEventListener('click', closeAudio);
+                        const parent = oldImg.parentNode;
+                        parent.insertBefore(container, oldImg);
+                        imageModal.style.display = 'flex';
+                    });
+                }
+                grid.appendChild(div);
+            }
+        }
+
+        /* =========================================================
+           HEADER Y PANEL DE INFORMACIÓN
+           ========================================================= */
+        function updateHeader() {
+            const participants = [...state.participants];
+            const title = $('chatTitle');
+            const subtitle = $('chatSubtitle');
+
+            if (participants.length === 0) {
+                title.textContent = 'Conversación';
+            } else if (participants.length <= 3) {
+                title.textContent = participants.join(', ');
+            } else {
+                title.textContent = `${participants[0]} y ${participants.length - 1} más`;
+            }
+            state.chatTitle = title.textContent;
+            subtitle.textContent =
+                `${state.messages.length.toLocaleString('es-AR')} mensajes · ${participants.length} participantes`;
+            state.chatSubtitle = subtitle.textContent;
+        }
+
+        function updateSenderFilter() {
+            const select = filterSender;
+            select.innerHTML = '<option value="__all__">Todos</option>';
+            const sorted = [...state.participants].sort();
+            for (const p of sorted) {
+                const opt = document.createElement('option');
+                opt.value = escapeHtmlAttr(p);
+                opt.textContent = p;
+                select.appendChild(opt);
+            }
+            select.value = state.currentFilter || '__all__';
+        }
+
+        function updateInfoPanel() {
+            const s = state.stats;
+            let topPartsHtml = '';
+            if (s.topParticipants && s.topParticipants.length) {
+                const max = s.topParticipants[0]?.[1] || 1;
+                topPartsHtml = s.topParticipants.map(([name, count]) => {
+                    const pct = Math.round((count / max) * 100);
+                    return `<div class="stat-bar">
+                        <span style="min-width:60px;">${escapeHtml(name)}</span>
+                        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+                        <span>${count}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            let topWordsHtml = '';
+            if (s.topWords && s.topWords.length) {
+                const max = s.topWords[0]?.[1] || 1;
+                topWordsHtml = s.topWords.map(([word, count]) => {
+                    const pct = Math.round((count / max) * 100);
+                    return `<div class="stat-bar">
+                        <span style="min-width:60px;">${escapeHtml(word)}</span>
+                        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+                        <span>${count}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            const html = `
+                <div class="stat"><span>Mensajes</span><span>${state.messages.length.toLocaleString('es-AR')}</span></div>
+                <div class="stat"><span>Participantes</span><span>${state.participants.size.toLocaleString('es-AR')}</span></div>
+                <div class="stat"><span>Desde</span><span>${escapeHtml(s.from || '—')}</span></div>
+                <div class="stat"><span>Hasta</span><span>${escapeHtml(s.to || '—')}</span></div>
+                <div class="stat"><span>Días</span><span>${s.totalDays || '—'}</span></div>
+                <div class="stat"><span>Promedio / día</span><span>${s.avgPerDay || '—'}</span></div>
+
+                <div class="stat-group">
+                    <div class="stat-group-title">📁 Archivos adjuntos</div>
+                    <div class="stat"><span>🖼 Imágenes</span><span>${state.media.images.toLocaleString('es-AR')}</span></div>
+                    <div class="stat"><span>🎬 Videos</span><span>${state.media.videos.toLocaleString('es-AR')}</span></div>
+                    <div class="stat"><span>🎵 Audios</span><span>${state.media.audios.toLocaleString('es-AR')}</span></div>
+                    <div class="stat"><span>📄 Documentos</span><span>${state.media.documents.toLocaleString('es-AR')}</span></div>
+                    <div class="stat"><span>📎 Otros</span><span>${state.media.files.toLocaleString('es-AR')}</span></div>
+                </div>
+
+                ${topPartsHtml ? `<div class="stat-group"><div class="stat-group-title">👤 Participantes más activos</div>${topPartsHtml}</div>` : ''}
+                ${topWordsHtml ? `<div class="stat-group"><div class="stat-group-title">📝 Palabras más usadas</div>${topWordsHtml}</div>` : ''}
+
+                <div class="stat-group">
+                    <div class="stat-group-title">💾 Exportar</div>
+                    <div class="export-buttons">
+                        <button id="exportTxt">📄 Exportar TXT</button>
+                        <button id="exportHtml">🌐 Exportar HTML</button>
+                    </div>
+                </div>
+            `;
+            infoContent.innerHTML = html;
+
+            const exportTxt = document.getElementById('exportTxt');
+            const exportHtml = document.getElementById('exportHtml');
+            if (exportTxt) exportTxt.addEventListener('click', exportConversationTxt);
+            if (exportHtml) exportHtml.addEventListener('click', exportConversationHtml);
+        }
+
+        /* =========================================================
+           EXPORTAR CONVERSACIÓN (con SANITIZACIÓN)
+           ========================================================= */
+        function exportConversationTxt() {
+            let text = '';
+            let lastDate = null;
+            for (const msg of state.messages) {
+                const dateKey = msg.date ? msg.date.toDateString() : msg.dateString;
+                if (dateKey !== lastDate) {
+                    text += `\n--- ${formatDateLabel(msg.date, msg.dateString)} ---\n\n`;
+                    lastDate = dateKey;
+                }
+                const sender = msg.sender || 'Sistema';
+                const time = msg.timeString || '';
+                const body = msg.text || '(sin texto)';
+                text += `[${time}] ${sender}: ${body}\n`;
+                if (msg.attachments && msg.attachments.length) {
+                    for (const att of msg.attachments) {
+                        text += `  📎 ${att.name}\n`;
+                    }
+                }
+            }
+            downloadFile(text, 'conversacion.txt', 'text/plain');
+        }
+
+        function exportConversationHtml() {
+            let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Exportación WhatsApp</title>
+            <style>body{font-family:sans-serif;max-width:800px;margin:auto;padding:20px;background:#efeae2;}
+            .msg{margin:4px 0;padding:6px 8px;border-radius:6px;background:white;}
+            .out{background:#d9fdd3;}.sender{font-weight:600;color:#008069;font-size:13px;}
+            .time{color:#888;font-size:11px;}.date{text-align:center;margin:12px 0;font-weight:600;color:#555;}
+            .att{font-size:12px;color:#667781;}</style></head><body>`;
+            let lastDate = null;
+            for (const msg of state.messages) {
+                const dateKey = msg.date ? msg.date.toDateString() : msg.dateString;
+                if (dateKey !== lastDate) {
+                    const dateLabel = formatDateLabel(msg.date, msg.dateString);
+                    html += `<div class="date">${escapeHtml(dateLabel)}</div>`;
+                    lastDate = dateKey;
+                }
+                const outgoing = determineOutgoing(msg, state.messages);
+                const cls = outgoing ? 'out' : '';
+                const sender = escapeHtml(msg.sender || 'Sistema');
+                const time = escapeHtml(msg.timeString || '');
+                const body = escapeHtml(msg.text || '(sin texto)');
+                html += `<div class="msg ${cls}"><div class="sender">${sender}</div><div>${body}</div>`;
+                if (msg.attachments && msg.attachments.length) {
+                    for (const att of msg.attachments) {
+                        html += `<div class="att">📎 ${escapeHtml(att.name)}</div>`;
+                    }
+                }
+                html += `<div class="time">${time}</div></div>`;
+            }
+            html += '</body></html>';
+            downloadFile(html, 'conversacion.html', 'text/html');
+        }
+
+        function downloadFile(content, filename, mime) {
+            const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        /* =========================================================
+           MARCADORES
+           ========================================================= */
+        function toggleBookmark(msgId) {
+            if (state.bookmarks.has(msgId)) {
+                state.bookmarks.delete(msgId);
+            } else {
+                state.bookmarks.add(msgId);
+            }
+            savePreference('bookmarks', [...state.bookmarks]);
+            renderChat(); // re-renderizar completo para actualizar estrellas
+            updateBookmarksPanel();
+        }
+
+        function updateBookmarksPanel() {
+            const list = bookmarksList;
+            list.innerHTML = '';
+            if (!state.bookmarks.size) {
+                noBookmarks.style.display = 'block';
+                return;
+            }
+            noBookmarks.style.display = 'none';
+            const bookmarks = [...state.bookmarks];
+            for (const id of bookmarks) {
+                const msg = state.messages.find(m => m.id === id);
+                if (!msg) continue;
+                const item = document.createElement('div');
+                item.className = 'bookmark-item';
+                const sender = escapeHtml(msg.sender || 'Sistema');
+                const text = escapeHtml(msg.text || '(sin texto)');
+                const preview = text.length > 60 ? text.substring(0, 60) + '…' : text;
+                item.textContent = `${sender}: ${preview}`;
+                item.addEventListener('click', () => {
+                    const rows = messagesContainer.querySelectorAll('.message-row');
+                    for (const row of rows) {
+                        if (row.dataset.id === id) {
+                            row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                            row.style.outline = '2px solid #f5c542';
+                            setTimeout(() => { row.style.outline = ''; }, 2000);
+                            break;
+                        }
+                    }
+                    bookmarksPanel.style.display = 'none';
+                });
+                list.appendChild(item);
+            }
+        }
+
+        /* =========================================================
+           FORMATEAR TEXTO (negrita, cursiva, links, citas)
+           ========================================================= */
+        function formatMessageText(text) {
+            let safe = escapeHtml(text);
+            safe = safe.replace(/(https?:\/\/[^\s<]+)/gi, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+            safe = safe.replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>');
+            safe = safe.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+            safe = safe.replace(/~([^~\n]+)~/g, '<del>$1</del>');
+            return safe;
+        }
+
+        /* =========================================================
+           BÚSQUEDA ASÍNCRONA (con chunks para no bloquear UI)
+           ========================================================= */
+        let searchTimeout = null;
+
+        function performSearch(query) {
+            clearTimeout(searchTimeout);
+            const q = query.trim().toLowerCase();
+
+            if (!q) {
+                searchCount.textContent = '0';
+                state.currentSearchResults = [];
+                state.searchIndex = -1;
+                renderChat(); // restaurar sin resaltados
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                performSearchAsync(q);
+            }, 200);
+        }
+
+        function performSearchAsync(query) {
+            const q = query.toLowerCase();
+            let filterType = null;
+            let searchTerm = q;
+            const typeMatch = q.match(/^(image|video|audio|document|file):/);
+            if (typeMatch) {
+                filterType = typeMatch[1];
+                searchTerm = q.replace(/^(image|video|audio|document|file):/, '').trim().toLowerCase();
+            }
+
+            const results = [];
+            const total = state.messages.length;
+            const chunkSize = 2000;
+            let processed = 0;
+
+            function processChunk() {
+                const end = Math.min(processed + chunkSize, total);
+                for (let i = processed; i < end; i++) {
+                    const msg = state.messages[i];
+                    let match = false;
+                    if (filterType) {
+                        if (msg.attachments) {
+                            for (const att of msg.attachments) {
+                                if (att.file) {
+                                    const fileType = getFileType(att.file.name);
+                                    if (fileType === filterType) {
+                                        match = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        const text = (msg.sender + ' ' + msg.text).toLowerCase();
+                        if (text.includes(searchTerm)) match = true;
+                    }
+                    if (match) {
+                        results.push(i);
+                    }
+                }
+                processed = end;
+
+                if (processed < total) {
+                    setTimeout(processChunk, 10);
+                } else {
+                    state.currentSearchResults = results;
+                    state.searchIndex = -1;
+                    searchCount.textContent = `${results.length} resultado${results.length === 1 ? '' : 's'}`;
+
+                    // Re-renderizar y resaltar
+                    renderChat();
+                    // Marcar los mensajes que coinciden
+                    const rows = messagesContainer.querySelectorAll('.message-row');
+                    rows.forEach(row => {
+                        const id = row.dataset.id;
+                        if (id) {
+                            const idx = state.messages.findIndex(m => m.id === id);
+                            if (idx !== -1 && results.includes(idx)) {
+                                const textEl = row.querySelector('.message-text');
+                                if (textEl && !filterType) {
+                                    const html = textEl.innerHTML;
+                                    const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                                    textEl.innerHTML = html.replace(regex, match =>
+                                        `<mark style="background:#f5c542;border-radius:2px;">${match}</mark>`);
+                                }
+                                row.dataset.searchIndex = results.indexOf(idx);
+                            } else {
+                                row.dataset.searchIndex = '';
+                            }
+                        }
+                    });
+
+                    if (results.length) {
+                        navigateSearch(1);
+                    }
+                }
+            }
+
+            processChunk();
+        }
+
+        function navigateSearch(dir) {
+            const results = state.currentSearchResults;
+            if (!results.length) return;
+            state.searchIndex = (state.searchIndex + dir + results.length) % results.length;
+            const idx = results[state.searchIndex];
+            const msgId = state.messages[idx]?.id;
+            if (msgId) {
+                const rows = messagesContainer.querySelectorAll('.message-row');
+                for (const row of rows) {
+                    if (row.dataset.id === msgId) {
+                        row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                        rows.forEach(r => r.style.outline = '');
+                        row.style.outline = '2px solid #128c7e';
+                        row.style.outlineOffset = '-1px';
+                        searchCount.textContent = `${state.searchIndex + 1} / ${results.length}`;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* =========================================================
+           EVENTOS DE LA INTERFAZ
+           ========================================================= */
+
+        // Búsqueda
+        $('searchButton').addEventListener('click', () => {
+            const visible = searchPanel.style.display === 'block';
+            searchPanel.style.display = visible ? 'none' : 'block';
+            if (!visible) {
+                searchInput.focus();
+            } else {
+                searchInput.value = '';
+                performSearch('');
+            }
+        });
+
+        searchInput.addEventListener('input', () => performSearch(searchInput.value));
+        searchPrev.addEventListener('click', () => navigateSearch(-1));
+        searchNext.addEventListener('click', () => navigateSearch(1));
+
+        // Filtro por remitente
+        filterSender.addEventListener('change', () => {
+            state.currentFilter = filterSender.value;
+            saveUIPref('filter', state.currentFilter);
+            renderChat();
+        });
+
+        // Navegación por fechas
+        prevDay.addEventListener('click', () => navigateDate(-1));
+        nextDay.addEventListener('click', () => navigateDate(1));
+        datePicker.addEventListener('change', (e) => goToDate(e.target.value));
+
+        function navigateDate(delta) {
+            if (!state.messages.length) return;
+            const dates = state.messages.map(m => m.date).filter(d => d && !isNaN(d.getTime()));
+            if (!dates.length) return;
+            const min = new Date(Math.min(...dates));
+            const max = new Date(Math.max(...dates));
+            min.setHours(0, 0, 0, 0);
+            max.setHours(0, 0, 0, 0);
+
+            let current = state.currentDate ? new Date(state.currentDate) : new Date(max);
+            current.setHours(0, 0, 0, 0);
+            current.setDate(current.getDate() + delta);
+
+            if (current < min) current = new Date(min);
+            if (current > max) current = new Date(max);
+
+            state.currentDate = current;
+            datePicker.value = current.toISOString().split('T')[0];
+            saveUIPref('date', state.currentDate ? state.currentDate.toISOString() : null);
+            renderChat();
+        }
+
+        function goToDate(dateStr) {
+            if (!dateStr) return;
+            const d = new Date(dateStr);
+            d.setHours(0, 0, 0, 0);
+            state.currentDate = d;
+            saveUIPref('date', d.toISOString());
+            renderChat();
+        }
+
+        // Tema oscuro
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            document.body.classList.toggle('dark', state.darkMode);
+            themeToggle.textContent = state.darkMode ? '☀️' : '🌙';
+            document.querySelectorAll('.header-select').forEach(el => {
+                el.classList.toggle('dark', state.darkMode);
+            });
+            saveUIPref('darkMode', state.darkMode);
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Tamaño de texto
+        textSizeSmall.addEventListener('click', () => {
+            state.textSize = 'small';
+            saveUIPref('textSize', state.textSize);
+            applyTextSize();
+        });
+        textSizeNormal.addEventListener('click', () => {
+            state.textSize = 'normal';
+            saveUIPref('textSize', state.textSize);
+            applyTextSize();
+        });
+        textSizeLarge.addEventListener('click', () => {
+            state.textSize = 'large';
+            saveUIPref('textSize', state.textSize);
+            applyTextSize();
+        });
+
+        function applyTextSize() {
+            const size = state.textSize;
+            let fontSize;
+            if (size === 'small') fontSize = '12px';
+            else if (size === 'large') fontSize = '17px';
+            else fontSize = '14px';
+
+            document.querySelectorAll('.message-text').forEach(el => {
+                el.style.fontSize = fontSize;
+            });
+            document.querySelectorAll('.message-text.emoji-only').forEach(el => {
+                el.style.fontSize = size === 'large' ? '36px' : size === 'small' ? '24px' : '32px';
+            });
+        }
+
+        // Marcadores
+        bookmarksToggle.addEventListener('click', () => {
+            const visible = bookmarksPanel.style.display === 'block';
+            bookmarksPanel.style.display = visible ? 'none' : 'block';
+            if (!visible) updateBookmarksPanel();
+        });
+
+        // Galería
+        galleryToggle.addEventListener('click', () => {
+            const visible = galleryPanel.style.display === 'block';
+            galleryPanel.style.display = visible ? 'none' : 'block';
+            if (!visible) renderGallery();
+        });
+
+        galleryClose.addEventListener('click', () => {
+            galleryPanel.style.display = 'none';
+        });
+
+        // Info panel
+        $('infoButton').addEventListener('click', () => {
+            infoPanel.style.display = infoPanel.style.display === 'block' ? 'none' : 'block';
+            if (infoPanel.style.display === 'block') updateInfoPanel();
+        });
+
+        closeInfoButton.addEventListener('click', () => {
+            infoPanel.style.display = 'none';
+        });
+
+        // Scroll
+        messagesContainer.addEventListener('scroll', () => {
+            const distance = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight;
+            scrollBottom.style.display = distance > 500 ? 'block' : 'none';
+        });
+
+        scrollBottom.addEventListener('click', scrollToBottom);
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Loading / error
+        function showLoading(text) {
+            loadingText.textContent = text || 'Procesando...';
+            progressFill.style.width = '0%';
+            loading.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.style.display = 'block';
+        }
+
+        // Atajos de teclado
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                if (searchPanel.style.display === 'block') {
+                    searchPanel.style.display = 'none';
+                    searchInput.value = '';
+                    performSearch('');
+                }
+                if (infoPanel.style.display === 'block') infoPanel.style.display = 'none';
+                if (bookmarksPanel.style.display === 'block') bookmarksPanel.style.display = 'none';
+                if (galleryPanel.style.display === 'block') galleryPanel.style.display = 'none';
+                if (imageModal.style.display === 'flex') closeImageModal();
+            }
+            if ((e.ctrlKey && e.key === 'f') || e.key === 'F3') {
+                if (app.style.display === 'block') {
+                    e.preventDefault();
+                    searchPanel.style.display = 'block';
+                    searchInput.focus();
+                }
+            }
+        });
+
+        // Utilidades
+        function formatBytes(bytes) {
+            if (!bytes) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1) + ' ' + units[i];
+        }
+
+        // Limpieza de URLs al cerrar
+        window.addEventListener('beforeunload', () => {
+            state.objectUrls.forEach(url => URL.revokeObjectURL(url));
+        });
+
+        /* =========================================================
+           CARGA GUARDADA (IndexedDB)
+           ========================================================= */
+        async function checkSavedConversation() {
+            const data = await loadConversation();
+            if (data) {
+                savedChatInfo.style.display = 'block';
+                loadSavedButton.onclick = () => loadSaved(data);
+                deleteSavedButton.onclick = async () => {
+                    await deleteConversation();
+                    savedChatInfo.style.display = 'none';
+                    showError('Conversación guardada eliminada.');
+                    setTimeout(() => { errorBox.style.display = 'none'; }, 3000);
+                };
+            } else {
+                savedChatInfo.style.display = 'none';
+            }
+        }
+
+        async function loadSaved(data) {
+            try {
+                state.messages = data.messages;
+                state.participants = new Set(data.participants);
+                state.media = data.media;
+                state.stats = data.stats;
+                state.chatTitle = data.chatTitle;
+                state.chatSubtitle = data.chatSubtitle;
+
+                const savedBookmarks = await loadPreference('bookmarks');
+                if (savedBookmarks && Array.isArray(savedBookmarks)) {
+                    const msgIds = new Set(state.messages.map(m => m.id));
+                    state.bookmarks = new Set(savedBookmarks.filter(id => msgIds.has(id)));
+                }
+
+                state.darkMode = loadUIPref('darkMode', false);
+                state.textSize = loadUIPref('textSize', 'normal');
+                state.currentFilter = loadUIPref('filter', '__all__');
+                const savedDate = loadUIPref('date', null);
+                if (savedDate) state.currentDate = new Date(savedDate);
+
+                if (state.darkMode) toggleTheme();
+                applyTextSize();
+                updateSenderFilter();
+                filterSender.value = state.currentFilter;
+
+                buildGallery();
+                renderChat();
+                updateHeader();
+                updateInfoPanel();
+                updateBookmarksPanel();
+
+                welcome.style.display = 'none';
+                app.style.display = 'block';
+                hideLoading();
+                setTimeout(() => scrollToBottom(), 100);
+
+            } catch (err) {
+                showError('Error al cargar la conversación guardada: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        /* =========================================================
+           INICIALIZACIÓN
+           ========================================================= */
+        (async function init() {
+            state.darkMode = loadUIPref('darkMode', false);
+            state.textSize = loadUIPref('textSize', 'normal');
+            if (state.darkMode) {
+                document.body.classList.add('dark');
+                themeToggle.textContent = '☀️';
+            }
+            applyTextSize();
+
+            await checkSavedConversation();
+
+            console.log('WhatsApp Chat Viewer v1.0.0 - Sin virtual scrolling, con todas las mejoras.');
+            console.log('Seleccioná una carpeta o ZIP de exportación de WhatsApp para comenzar.');
+        })();
+    </script>
+</body>
+</html>
