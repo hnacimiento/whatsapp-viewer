@@ -4,7 +4,7 @@
 > Load your exports (folder or ZIP) and browse messages with a WhatsApp-like interface.  
 > **No uploads. No servers. Total privacy.**
 
-![Preview](https://via.placeholder.com/800x400?text=WhatsApp+Chat+Viewer)
+![Preview](https://placehold.co/800x400?text=WhatsApp+Chat+Viewer)
 
 ---
 
