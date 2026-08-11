@@ -1,72 +1,108 @@
-# WhatsApp Chat Viewer
+# 💬 WhatsApp Chat Viewer
 
-An offline, fully local WhatsApp conversation viewer.  
-Load your WhatsApp exports (folder or ZIP) and browse messages with a WhatsApp-like interface, without uploading your files anywhere.
+> **Offline, fully local WhatsApp conversation viewer.**  
+> Load your exports (folder or ZIP) and browse messages with a WhatsApp-like interface.  
+> **No uploads. No servers. Total privacy.**
+
+![Preview](https://via.placeholder.com/800x400?text=WhatsApp+Chat+Viewer)
+
+---
 
 ## 🚀 Features
 
-- 📂 **Local loading** – Select a folder or a ZIP file exported from WhatsApp (Android or iPhone).
-- 💬 **Styled messages** – Incoming/outgoing bubbles, date separators, system messages with icons, native emojis, and larger font for emoji-only messages.
-- 🖼️ **Media** – Images (click to enlarge), videos, audio, stickers (`.webp`), and PDF with preview and download.
-- 🔍 **Smart search** – Search by text or by file type (`image:`, `video:`, `audio:`, `document:`). Real-time results with navigation.
-- ⭐ **Bookmarks** – Save important messages with a star and access them from the bookmarks panel.
-- 📊 **Advanced statistics** – Total messages, participants, attachments, most used words, and most active participants (with visual bars).
-- 📅 **Date navigation** – Jump to previous/next day or pick a specific date from the calendar.
-- 👤 **Sender filter** – Show only messages from a particular person.
-- 📋 **Copy message** – 📋 button next to each message to copy its text to the clipboard.
-- 🖼️ **Media gallery** – Grid view of all images, videos, and audio files from the conversation.
-- 🌙 **Dark theme** – Toggle between light and dark mode with one click (preference saved).
-- 🔤 **Text size** – Adjust font size (small, normal, large).
-- 💾 **Export conversation** – Download the full conversation as TXT or HTML (all data sanitized).
-- ⌨️ **Keyboard shortcuts** – `Ctrl+F` to search, `Esc` to close panels.
-- 💾 **Persistence** – Saves the conversation in IndexedDB for instant loading next time. Also saves your preferences (theme, size, filter, date).
-- 🔒 **Total privacy** – All processing happens in your browser. No files are uploaded anywhere.
+| Category | Features |
+|----------|----------|
+| 📂 **Loading** | Folder or ZIP (up to 500 MB). Drag & drop supported. |
+| 💬 **Messages** | Incoming/outgoing bubbles, date separators, system messages with icons, native emojis (larger for emoji‑only messages). |
+| 🖼️ **Media** | Images (click to enlarge), videos, audio, stickers (`.webp`), PDF with preview and download. |
+| 🔍 **Search** | By text or by file type (`image:`, `video:`, `audio:`, `document:`). Real‑time results with navigation. |
+| ⭐ **Bookmarks** | Save important messages and access them from the bookmarks panel. |
+| 📊 **Statistics** | Total messages, participants, attachments, most used words, most active participants (with visual bars). |
+| 📅 **Date navigation** | Jump to previous/next day or pick a specific date from the calendar. |
+| 👤 **Sender filter** | Show only messages from a particular person. |
+| 📋 **Copy message** | 📋 button next to each message to copy its text to the clipboard. |
+| 🖼️ **Media gallery** | Grid view of all images, videos, and audio files from the conversation. |
+| 🌙 **Dark theme** | Toggle between light and dark mode (preference saved). |
+| 🔤 **Text size** | Adjust font size (small, normal, large). |
+| 💾 **Export** | Download the full conversation as TXT or HTML (all data sanitized). |
+| ⌨️ **Shortcuts** | `Ctrl+F` to search, `Esc` to close panels. |
+| 💾 **Persistence** | Saves conversation in IndexedDB for instant loading. Also saves your preferences (theme, size, filter, date). |
+| 🔒 **Privacy** | 100% local. No files are uploaded anywhere. |
+| 🛡️ **Security** | Data sanitization to prevent HTML/JS injection. ZIP limits: 500 MB, 5000 files, 1 GB uncompressed. |
+
+---
+
+## 🌐 Try it online (demo)
+
+You can test the interface directly in your browser:
+
+- **Stable version** (this release): [Open stable demo](https://rawcdn.githack.com/hnacimiento/whatsapp-viewer/600bf8ab692e08708490f8a4b5a4285b704c8638/whatsapp-viewer.html)
+- **Latest version** (development): [Open latest demo](https://raw.githack.com/hnacimiento/whatsapp-viewer/main/whatsapp-viewer.html)
+
+> ⚠️ **Important**: For security reasons, browsers **do not allow** a web page hosted on a server to access files from your local disk.  
+> To use the viewer with your own WhatsApp exports, **you must download the `whatsapp-viewer.html` file** and open it locally (double‑click).
+
+---
 
 ## 📦 Installation & Usage
 
-1. **Download** the `whatsapp-viewer.html` file from the [releases page](../../releases) or clone the repository.
-2. **Open** the file in your browser (Chrome, Edge, Firefox, etc.).
+1. **Download** the `whatsapp-viewer.html` file from the [Releases page](../../releases) or clone the repository.
+2. **Open** the file in your browser (Chrome, Edge, Firefox, Safari, etc.).
 3. **Load** a WhatsApp export:
-   - Click "Select folder" and choose the folder containing `_chat.txt` and media files.
-   - Or click "Select ZIP" and choose the `.zip` file generated by WhatsApp.
-   - You can also drag and drop the folder or ZIP directly onto the window.
+   - Click **"Select folder"** and choose the folder containing `_chat.txt` and media files.
+   - Or click **"Select ZIP"** and choose the `.zip` file generated by WhatsApp.
+   - You can also **drag and drop** the folder or ZIP directly onto the window.
 4. **Explore** the conversation: navigate, search, bookmark, export, etc.
+
+---
 
 ## 🛡️ Security & Privacy
 
 - **No server**: All processing is 100% local in your browser.
-- **No file upload**: No data is sent over the Internet.
+- **No file upload**: No data is ever sent over the Internet.
 - **Sanitization**: All chat data is escaped to prevent HTML/JS injection, both in display and export.
-- **Security limits**: ZIP files are limited in size (500 MB), file count (5000), and total uncompressed size (1 GB) to prevent abuse or browser crashes.
+- **Security limits**: ZIP files are limited in size (500 MB), number of files (5000), and total uncompressed size (1 GB) to prevent abuse or browser crashes.
+
+---
 
 ## ⚙️ Requirements
 
-- A modern browser (Chrome, Edge, Firefox, Safari) with support for **File API**, **IndexedDB**, and **ES6**.
+- A modern browser with support for **File API**, **IndexedDB**, and **ES6**.
 - Internet is only needed to load the **JSZip** library (can be replaced with a local copy).
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome. If you find a bug or want to suggest an improvement:
+Contributions are welcome! If you find a bug or want to suggest an improvement:
 
 1. Open an **issue** describing the problem or idea.
 2. If you want to implement it, **fork** the repository and submit a **pull request**.
 
 ### Possible future improvements
 
-- Location support (maps).
+- Support for locations (maps).
 - More detailed quote/reply formatting.
 - Statistics charts with Canvas.
 - Reading mode (hide senders and times).
 
+---
+
 ## 📄 License
 
-This project is distributed under the **MIT** license. You can use, modify, and distribute it freely.
-
-## 🙋‍♂️ Author
-
-Created by [Hernán Dario Nacimiento](https://github.com/hnacimiento).  
-If you like the project, don't forget to give it a ⭐ on GitHub!
+This project is distributed under the **MIT** license.  
+You can use, modify, and distribute it freely.
 
 ---
 
-**Note**: This viewer is designed for personal and local use. Do not host it on a public server without additional security measures (CSP, authentication, etc.).
+## 🙋‍♂️ Author
+
+Created by **Hernán Dario Nacimiento**  
+GitHub: [@hnacimiento](https://github.com/hnacimiento)
+
+> 💡 **Note**: The HTML code is written in **Spanish** (UI labels, error messages, etc.) to make it easier for native speakers.  
+> If you need it in another language, feel free to adapt it or open an issue to discuss it.
+
+---
+
+**⭐ If you like this project, don't forget to give it a star!**  
