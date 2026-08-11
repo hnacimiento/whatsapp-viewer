@@ -64,7 +64,7 @@ This project is distributed under the **MIT** license. You can use, modify, and 
 
 ## 🙋‍♂️ Author
 
-Created by [Your Name](https://github.com/hnacimiento).  
+Created by [Hernán Dario Nacimiento](https://github.com/hnacimiento).  
 If you like the project, don't forget to give it a ⭐ on GitHub!
 
 ---
